@@ -8,14 +8,14 @@ class Queue {
         this.items.push(element);
     }
 
-    dequeue() {
-        if (this.isEmpty()) {
-            return null; // Queue is empty
-        }
-        const element = this.items[this.front];
-        this.front++;
-        return element;
-    }
+    // dequeue() {
+    //     if (this.isEmpty()) {
+    //         return null; // Queue is empty
+    //     }
+    //     const element = this.items[this.front];
+    //     this.front++;
+    //     return element;
+    // }
 
     dequeue() {
         if (this.isEmpty()) {
@@ -55,3 +55,4 @@ console.log(queue.size()); // 1
 
 
 
+ 

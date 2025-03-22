@@ -634,9 +634,6 @@ class Solution {
 
 // for detecting cycle in DAG i just need to check res.length==N (number of nodes) or we can also use count ;
 
-
-
-
 //dividing graph into 2 parts  , grouping in 2 parts  question is moving towards bipartite 
 
 // can we color the whole graph in 2 colors such that not 2 adjacent nodes has same color 
