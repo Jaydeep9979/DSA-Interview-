@@ -343,7 +343,7 @@ class Solution {
 
 
 class Solution {
-    // Function to detect cycle in an undirected graph using BFS.
+    // Function to detect cycle in an undirected graph using BFS. 
     isCycle(adj) {
         function BFSCycle1(graph,node,visited){
     
@@ -361,8 +361,9 @@ class Solution {
                 if(visited[nbr]==true){
                     return true;
                 }
-                visited[nbr]=true;
+                
                 q.push([nbr,node]);
+                visited[nbr]=true;
             }
         }
 
@@ -374,7 +375,7 @@ class Solution {
         
         for(let i=0;i<v;i++){
             if(visited[i]==false && BFSCycle1(adj,i,visited)){
-                return 1;
+                return 1; // if cycle detected return 1
             }
         }
         return 0;
@@ -382,9 +383,23 @@ class Solution {
     
 }
 
+// Time Complexity : O(V+E) 
+//In the worst case, the time complexity of detecting a cycle in an undirected graph using BFS is still O(V + E).
+
+// Why?
+// BFS visits each vertex at most once → O(V)
+
+// BFS processes each edge at most twice (once from each endpoint) → O(E) 
+
+// The worst case occurs in a dense graph (like a complete graph), where E ≈ V². However, the complexity remains O(V + E).
+
+// Thus, even in the worst case, the complexity does not exceed O(V + E).
+
 
 class Solution {
+
     // Function to detect cycle in an undirected graph DFS
+
     isCycle(adj) {
 
         function dfsCycle2(graph,node,visited,parent){
@@ -577,7 +592,7 @@ class Solution {
         }
 
         let visited  =  new Array(V).fill(false);
-        let stack  =[];
+        let stack  = [];
         for(let v=0;v<V;v++){
             if(!visited[v]){
                 dfs(adj,v,visited,stack)
@@ -664,7 +679,7 @@ var isBipartite = function(graph) {
     let colors = new Array(n).fill(-1);
     for(let u=0;u<graph.length;u++){
         if(colors[u]==-1){
-            if(check(graph,u,colors,1)==false){
+            if(check(graph,u,colors,1)==false){ 
                 return false;
             }
         }
@@ -730,10 +745,10 @@ class Heap{
         let lci = 2*pi +1;
         let rci = 2*pi +2;
         
-        if(lci < this.arr.length && this.arr[lci][1] < this.arr[pi][1]){
+        if(lci < this.arr.length && this.arr[lci][1] < this.arr[mini][1]){
             mini = lci;
         }
-        if(rci < this.arr.length && this.arr[rci][1] < this.arr[pi][1]){
+        if(rci < this.arr.length && this.arr[rci][1] < this.arr[mini][1]){
             mini = rci;
         }
         if(mini!=pi){
@@ -753,27 +768,33 @@ class Solution {
     // Function to find the shortest distance of all the vertices
     // from the source vertex src.
     dijkstra(adj, src) {
-        let ans = new Array(adj.length).fill(Infinity);
+        let dist = new Array(adj.length).fill(Infinity);
         let q = new Heap();
         q.add(src,0);
-        ans[src]=0;
+        dist[src]=0;
         while(q.size()!=0){
             let [node,d] = q.remove();
             
             for(let nbr of adj[node]){
                 let [nbrNode,weight] = nbr;
                 
-                if(weight+d<ans[nbrNode]){
-                    ans[nbrNode] = weight+d;
+                if(weight+d<dist[nbrNode]){
+                    dist[nbrNode] = weight+d;
                     q.add(nbrNode,weight+d);
                 }
             }
             
         }
         
-        return ans;
+        return dist;
     }
 }
+
+// Caveat: No Negative Weights
+// Dijkstra's algorithm does NOT work correctly with negative weight edges.
+
+// It assumes that once a node's shortest distance is finalized, it cannot be improved, which is not true for graphs with negative edges.
+// If negative weights exist, use Bellman-Ford Algorithm instead.
 
 
 // dijkrasta's algo with finding path ; 
@@ -1094,13 +1115,13 @@ function bfs(start){
                  dist[nbr] = dist[node] + 1;
                  q.push([nbr,node]);
 
-            }
-            else if(parent!=nbr){
+            } 
+            else if(parent!=nbr){ 
+                // dist[node] +1 >= dist[nbr]  cycle detected                                                     
                 tempans=Math.min(tempans,dist[nbr] + dist[node] +1);
-            }
+            }                                                                                      
         }
-
-    }
+    }            
     return tempans;
 
 }

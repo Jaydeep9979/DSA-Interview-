@@ -199,6 +199,7 @@ var maxSlidingWindow = function (nums, k) {
     let dq = []; // store indices
 
     for (let i = 0; i < nums.length; i++) {
+
         // Remove indices that are out of the current window
         while (dq.length !== 0 && dq[0] <= i - k) {
             dq.shift();
@@ -393,7 +394,7 @@ console.log(minWindow(s, t)); // Output: "BANC"
 
 // create map of t  of count of characters in it
 // traverse through string
-//maintain requiredCount such it satisfy our condition of substring
+// maintain requiredCount such it satisfy our condition of substring
 // of s such that every character in t (including duplicates) is included in the window.
 
 // 1) if you find the character from map in main string  map[char] > 0 , we will recude our required Count
