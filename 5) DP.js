@@ -58,8 +58,13 @@ var climbStairs = function (n) {
 var climbStairs = function (n) {
     let dp = Array(n + 1).fill(-1);
     dp[0] = 0;
+    dp[1] = 1;
+    for (let i = 2; i <= n; i++) {
+        dp[i] = dp[i - 1] + dp[i - 2];
+    }
 
-    return countWays(n);
+    return dp[n];
+    // return countWays(n);
 };
 
 // Frog Jumps for each jump cost is ABS(height[j] - Height[i])
@@ -125,7 +130,7 @@ function solve(arr, index) {
 
 memo = Array(n + 1).fill(-1);
 
-// k Jumsps
+// k Jumps
 
 function solve(n, arr) {
     let dp = new Array(n).fill(-1);
@@ -166,7 +171,51 @@ function solve(arr, n) {
 
     let secondWay = 0 + solve(arr, n - 1);
 
-    return Math.min(firstWay, secondWay);
+    return Math.max(firstWay, secondWay);
+}
+
+// memoization
+
+function solve(arr, n, memo = {}) {
+    if (n in memo) return memo[n];
+    if (n == 0) return 0;
+    if (n == 1) return arr[0];
+
+    let robCurrent = arr[n - 1] + solve(arr, n - 2, memo);
+    let skipCurrent = solve(arr, n - 1, memo);
+
+    memo[n] = Math.max(robCurrent, skipCurrent);
+    return memo[n];
+}
+
+function solve(arr) {
+    let dp = [];
+    let n = arr.length;
+    dp[0] = 0;
+    dp[1] = arr[0];
+
+    for (let i = 2; i <= n; i++) {
+        dp[i] = Math.max(arr[i - 1] + dp[i - 2], dp[i - 1]);
+    }
+
+    return dp[n];
+}
+
+function solve(arr) {
+    let n = arr.length;
+    if (n == 0) return 0;
+    if (n == 1) return arr[0];
+    let prev2 = 0;
+    let prev = arr[0];
+
+    for (let i = 2; i <= n; i++) {
+        let t = Math.max(arr[i - 1] + prev2, prev);
+
+        prev2 = prev;
+        prev = t;
+    }
+
+    return prev;
 }
 
 // ----------------------------------------------------striver-----------------------
@@ -175,9 +224,9 @@ function solve(arr, n) {
 
 // BASE CASE : Find the smallest possible input
 
-//find the choices at given point and make the condition for choices
+// find the choices at given point and make the condition for choices
 
-// then find how we are assginging value based on conditon
+// then find how we are assinging value based on conditon
 
 //Recursive -> memoize -> DP
 
@@ -201,36 +250,42 @@ function knapsack(wt, val, capacity, n) {
 }
 
 // memoization
-let memo = Array.from({ length: n + 1 }, () =>
-    new Array(capacity + 1).fill(-1)
-);
-
 function knapsack(wt, val, capacity, n, memo) {
     // Base case: If no items or no capacity, return 0
-    if (capacity == 0 || n == 0) {
+    if (n === 0 || capacity === 0) {
         return 0;
     }
 
     // If the result is already computed, return it
-    if (memo[n][capacity] != -1) {
+    if (memo[n][capacity] !== -1) {
         return memo[n][capacity];
     }
 
     // If the current item's weight is within the capacity
     if (wt[n - 1] <= capacity) {
-        // Store the result in memo before returning
-        memo[n][capacity] = Math.max(
-            val[n - 1] + knapsack(wt, val, capacity - wt[n - 1], n - 1, memo),
-            knapsack(wt, val, capacity, n - 1, memo)
-        );
-        return memo[n][capacity];
+        // Option 1: Include the item
+        const include = val[n - 1] + knapsack(wt, val, capacity - wt[n - 1], n - 1, memo);
+        // Option 2: Exclude the item
+        const exclude = knapsack(wt, val, capacity, n - 1, memo);
+        // Store the max of the two options
+        memo[n][capacity] = Math.max(include, exclude);
     } else {
-        // If the current item's weight exceeds the capacity, skip it
+        // If the item's weight exceeds capacity, skip it
         memo[n][capacity] = knapsack(wt, val, capacity, n - 1, memo);
-        return memo[n][capacity];
     }
+
+    return memo[n][capacity];
 }
 
+// Helper function to initialize memo and call knapsack
+function solveKnapsack(wt, val, capacity) {
+    const n = wt.length;
+    // Initialize memo[n+1][capacity+1] with -1
+    const memo = Array.from({ length: n + 1 }, () => 
+        new Array(capacity + 1).fill(-1)
+    );
+    return knapsack(wt, val, capacity, n, memo);
+}
 // in DP Recursion's base conditions gets converted into Intialisation
 
 function knapsack(wt, val, capacity, n) {
@@ -239,6 +294,7 @@ function knapsack(wt, val, capacity, n) {
     let dp = Array.from({ length: n + 1 }, () =>
         new Array(capacity + 1).fill(-1)
     );
+
     for (let w = 0; w < n + 1; w++) {
         for (let v = 0; v < capacity + 1; v++) {
             if (w == 0 || v == 0) {
@@ -271,6 +327,10 @@ function knapsack(weights, values, capacity) {
     // Iterate over each item
     for (let i = 0; i < n; i++) {
         // Traverse the dp array from right to left
+        // Why Right-to-Left Update?
+        // Updating from capacity down to weights[i] ensures that we don't reuse
+        // the same item multiple times (which would turn it into the unbounded 
+        // knapsack problem). Left-to-right updates would allow items to be used repeatedly.
         for (let w = capacity; w >= weights[i]; w--) {
             dp[w] = Math.max(dp[w], dp[w - weights[i]] + values[i]);
         }
@@ -349,8 +409,10 @@ function isSubsetSumDP(set, n, sum) {
     dp[0] = true;
 
     // Fill the dp array
-    for (let i = 0; i < n; i++) { // Iterate over each element in the set
-        for (let j = sum; j >= set[i]; j--) { // Iterate from sum down to the current element's value
+    for (let i = 0; i < n; i++) {
+        // Iterate over each element in the set
+        for (let j = sum; j >= set[i]; j--) {
+            // Iterate from sum down to the current element's value
             dp[j] = dp[j] || dp[j - set[i]];
         }
     }
@@ -424,7 +486,7 @@ function iCountSubSetSumDP(set, n, sum) {
 }
 
 // Minimum Subset Sum Difference Problem
-//  
+//
 
 function iCountSubSetSumDP(set, n, sum) {
     let dp = Array.from({ length: n + 1 }, () => new Array(sum + 1).fill());
@@ -497,7 +559,13 @@ function unboundedKnapsack(weights, values, capacity, n) {
         // 1. nth item included (can be included again)
         // 2. nth item not included
         return Math.max(
-            values[n - 1] + unboundedKnapsack(weights, values, capacity - weights[n - 1], n),
+            values[n - 1] +
+                unboundedKnapsack(
+                    weights,
+                    values,
+                    capacity - weights[n - 1],
+                    n
+                ),
             unboundedKnapsack(weights, values, capacity, n - 1)
         );
     }
@@ -507,8 +575,10 @@ function unboundedKnapsack(weights, values, capacity, n) {
 const weights = [1, 3, 4, 5];
 const values = [10, 40, 50, 70];
 const capacity = 8;
- n = weights.length;
-console.log(unboundedKnapsack(weights, values, capacity, n)); // Output: 110
+n = weights.length;
+console.log(unboundedKnapsack(weights, values, capacity, n)); 
+
+// Output: 110
 // Rode Cutting Problem
 
 // Price [] - > Value
@@ -521,6 +591,7 @@ function knapsack(wt, val, capacity, n) {
     let dp = Array.from({ length: n + 1 }, () =>
         new Array(capacity + 1).fill(-1)
     );
+
     for (let w = 0; w < n + 1; w++) {
         for (let v = 0; v < capacity + 1; v++) {
             if (w == 0 || v == 0) {
@@ -533,7 +604,7 @@ function knapsack(wt, val, capacity, n) {
         for (let j = 1; j < capacity + 1; j++) {
             if (wt[i - 1] <= j) {
                 dp[i][j] = Math.max(
-                    val[i - 1] + dp[i][j - wt[i-1]],
+                    val[i - 1] + dp[i][j - wt[i - 1]],
                     dp[i - 1][j]
                 ); // val[i-1]+dp[i -1][j-wt[i]] -> val[i-1]+dp[i][j-wt[i]]
                 // we can choose the Unlimited times
@@ -684,14 +755,14 @@ function shortestCommonSupersequence(str1, str2) {
     for (let i = 1; i <= m; i++) {
         for (let j = 1; j <= n; j++) {
             if (str1[i - 1] === str2[j - 1]) {
-                dp[i][j] = dp[i - 1][j - 1] + 1; // Characters match
+                dp[i][j] = dp[i - 1][j - 1] + 1;  // Characters match
             } else {
                 dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]); // Take the max
             }
         }
     }
 
-    // Construct the SCS
+    // Construct the SCS\ 
     let scs = "";
     let i = m,
         j = n;
@@ -866,5 +937,3 @@ function ninjaTraining(n, points) {
         return Math.max(first, second);
     }
 }
-
-

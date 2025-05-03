@@ -22,3 +22,38 @@ function detectCycle() {
 }
 
 //Time complexity : O
+
+function topologicalSort(adj){
+    let q = [];
+    let n =adj.length;
+    let inDegree = new Array(n).fill(0);
+
+    for(let v=0;v<n;v++){
+        for(let u of adj[v]){
+            inDegree[u]+=1;
+        }
+    }
+
+    for(let node=0 ; node<n ; node++){
+        if(inDegree[node]===0){
+            q.push(node);
+        }
+    }
+
+
+    let res =[] ;
+
+    while(q.length!=0){
+        let node = q.shift();
+        res.push(node);
+        for(let nbr of adj[node]){
+            inDegree[nbr]-=1;
+            if(inDegree[nbr]===0){
+                q.push(nbr);
+            }
+        }
+    }
+
+    return res;
+    
+}

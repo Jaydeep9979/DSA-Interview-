@@ -390,3 +390,73 @@ class PriorityQueue{
 
 
 }
+
+//Priority Queue Implementation with comparator function
+class PriorityQueue {
+    constructor(comparator = (a, b) => a[1] - b[1]) {
+        this.arr = [];
+        this.comparator = comparator;
+    }
+
+    upheapify(ci) {
+        if (ci === 0) return;
+
+        let pi = Math.floor((ci - 1) / 2);
+
+        if (this.comparator(this.arr[ci], this.arr[pi]) < 0) {
+            [this.arr[ci], this.arr[pi]] = [this.arr[pi], this.arr[ci]];
+            this.upheapify(pi);
+        }
+    }
+
+    downHeapify(pi) {
+        let mini = pi;
+        let lci = 2 * pi + 1;
+        let rci = 2 * pi + 2;
+
+        if (lci < this.arr.length && this.comparator(this.arr[lci], this.arr[mini]) < 0) {
+            mini = lci;
+        }
+
+        if (rci < this.arr.length && this.comparator(this.arr[rci], this.arr[mini]) < 0) {
+            mini = rci;
+        }
+
+        if (mini !== pi) {
+            [this.arr[pi], this.arr[mini]] = [this.arr[mini], this.arr[pi]];
+            this.downHeapify(mini);
+        }
+    }
+
+    add(ele, weight) {
+        this.arr.push([ele, weight]);
+        this.upheapify(this.arr.length - 1);
+    }
+
+    remove() {
+        if (this.arr.length === 0) {
+            console.log("empty Heap");
+            return null;
+        }
+
+        const ans = this.arr[0];
+
+        [this.arr[0], this.arr[this.arr.length - 1]] = [
+            this.arr[this.arr.length - 1],
+            this.arr[0],
+        ];
+
+        this.arr.pop();
+        this.downHeapify(0);
+
+        return ans;
+    }
+
+    size() {
+        return this.arr.length;
+    }
+
+    print() {
+        console.log(this.arr);
+    }
+}

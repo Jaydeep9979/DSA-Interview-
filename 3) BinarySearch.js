@@ -75,6 +75,42 @@ function findPivotWithDuplicates(arr) {
     return low;
 }
 
+// worst case time complexity O(n) arr = [1, 1, 1, 1, 1, 0, 1, 1, 1, 1]
+// Best / Average Case: O(log n) (when duplicates are minimal or don’t affect direction)
+
+// Worst Case (heavy duplicates): O(n) ← you are correct
+
+
+//little bit betterr version 
+
+function findPivotWithDuplicates(arr) {
+    let low = 0;
+    let high = arr.length - 1;
+
+    while (low < high) {
+        let mid = Math.floor((low + high) / 2);
+
+        if (arr[mid] < arr[high]) {
+            // Minimum is in the left part including mid
+            high = mid;
+        } else if (arr[mid] > arr[high]) {
+            // Minimum is in the right part
+            low = mid + 1;
+        } else {
+            // arr[mid] == arr[high], we can't be sure, reduce high
+            high--; // shrink the search space carefully
+        }
+    }
+
+    return low; // or return arr[low] if you want the pivot value
+}
+
+// Complexity:
+// Average case: O(log n)
+
+// Worst case (all elements same): still O(n) — but the code avoids premature scanning through all elements.
+
+
 // console.log(findPivotWithDuplicates([1, 3, 1, 1, 1])); // 1
 
 // Search in Rotated Sorted Array ;
@@ -119,40 +155,39 @@ function searchinRotatedArrayWithDuplicates(arr, target) {
 
 // find first and last position of element in sorted array
 
-function findFirstAndLastPosition(arr, target) {
-    let n = arr.length;
+function findFirstAndLastPosition(nums, target) {
+    function BS(arr,target,isFirst){
+        let index=-1
+        let low = 0 ;
+        let high = arr.length-1;
 
-    let low = 0;
-    let high = n - 1;
-    let first = -1;
-    while (low <= high) {
-        let mid = Math.floor((low + high) / 2);
+        while(low<=high){
+            
+            let mid = Math.floor((low+high)/2);
 
-        if (target <= arr[mid]) {
-            first = mid;
-            high = mid - 1;
-        } else {
-            low = mid + 1;
+            if(arr[mid]===target){
+                index=mid;
+                if(isFirst){
+                    high=mid-1;
+                }
+                else{
+                    low=mid+1;
+                }
+            }
+            else if(target > arr[mid]){
+                    low=mid+1;
+            }
+            else{
+                    high=mid-1;
+            }
         }
+        return index;
     }
 
-    return first;
+    let first = BS(nums,target,true);
+    let last  = BS(nums,target,false);
 
-    // low = 0;
-    // high = n - 1;
-    // let last = -1;
-    // while (low <= high) {
-    //     let mid = Math.floor((low + high) / 2);
-
-    //     if (target >= arr[mid]) {
-    //         last = mid;
-    //         low = mid + 1;
-    //     } else {
-    //         high = mid - 1;
-    //     }
-    // }
-
-    // return [first, last];
+    return [first,last];
 }
 
 // console.log(findFirstAndLastPosition([5, 7, 7, 8, 8, 10], 8));

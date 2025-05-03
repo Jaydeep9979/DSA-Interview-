@@ -37,3 +37,61 @@ solve([1, 1, 2, 4]); // 6
 solve([3, 3, 6]); // 4
 
 // look at right side for outputs
+
+class PriorityQueue {
+    constructor() {
+        this.arr = [];
+    }
+
+    add(val) {
+        this.arr.push(val);
+        upheapify(this.arr.length - 1);
+    }
+
+    swap(i, j) {
+        let temp = this.arr[i];
+        this.arr[i] = this.arr[j];
+        this.arr[j] = temp;
+    }
+
+    upheapify(idx) {
+        if (idx == 0) return;
+
+        let pi = Math.floor((idx - 1) / 2);
+        if (this.arr[pi] > this.arr[idx]) {
+            this.swap(pi, idx);
+            this.upheapify(pi);
+        }
+    }
+
+    remove() {
+        if (this.arr.length == 0) {
+            return "Underflow";
+        }
+
+        this.swap(0, this.arr.length - 1);
+        let ans = this.arr.pop();
+
+        this.downheapify(0);
+        return ans;
+    }
+
+    downheapify(idx) {
+        let mini = idx;
+        let lci = 2 * idx + 1;
+        let rci = 2 * idx + 2;
+
+        if (lci < this.arr.length && this.arr[lci] < this.arr[mini]) {
+            mini = lci;
+        }
+
+        if (rci < this.arr.length && this.arr[rci] < this.arr[mini]) {
+            mini = rci;
+        }
+
+        if (mini != idx) {
+            swap(mini, idx);
+            this.downheapify(mini);
+        }
+    }
+}
