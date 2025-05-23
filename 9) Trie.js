@@ -46,8 +46,6 @@ class Trie {
     }
 }
 
-
-
 t.insert("apple");
 console.log(t.startsWith("bpp"));
 console.log(t.search("apple"));

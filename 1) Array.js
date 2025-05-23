@@ -16,6 +16,97 @@
 // Output: 700
 // Explanation: arr3  + arr4 = 700, which is maximum.
 
+function quick(arr) {
+    if (arr.length <= 1) {
+        return arr;
+    }
+
+    let pivot = arr.length - 1;
+
+    let left = [];
+    let right = [];
+
+    for (let i = 0; i < arr.length; i++) {
+        if (i === pivot) continue;
+        if (arr[i] < arr[pivot]) {
+            left.push(arr[i]);
+        } else {
+            right.push(arr[i]);
+        }
+    }
+
+    return [...quick(left), arr[pivot], ...quick(right)];
+}
+
+console.log(quick([4, 2, 7, 5, 1, 1]));
+
+function partition(arr, low, high) {
+    let pivot = high;
+    let i = low - 1;
+
+    for (let j = low; j < high; j++) {
+        if (arr[j] < arr[pivot]) {
+            i++;
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+    }
+
+    [arr[i + 1], arr[pivot]] = [arr[pivot], arr[i + 1]];
+
+    return i + 1;
+}
+
+function quickSort(arr, low, high) {
+    if (low < high) {
+        const pi = partition(arr, low, high); // 🔥 use your function here
+        quickSort(arr, low, pi - 1); // sort left side
+        quickSort(arr, pi + 1, high); // sort right side
+    }
+}
+
+// let arr = [5, 1, 4, 2, 9, 4, 6, 7, 4];
+// quickSort(arr, 0, arr.length - 1);
+// console.log(arr);
+
+function minStrokes(heights, start = 0, end = heights.length - 1) {
+    if (start > end) return 0;
+
+    // Find min height in the current segment
+    let minH = Infinity;
+    for (let i = start; i <= end; i++) {
+        minH = Math.min(minH, heights[i]);
+    }
+
+    // Paint horizontally by minH strokes
+    let strokes = minH;
+
+    // Subtract minH from each plank in segment
+    for (let i = start; i <= end; i++) {
+        heights[i] -= minH;
+    }
+
+    // Recursively solve for subarrays separated by zero-height planks
+    let i = start;
+    while (i <= end) {
+        while (i <= end && heights[i] === 0) i++; // skip zeros
+        if (i > end) break;
+        let j = i;
+        while (j <= end && heights[j] > 0) j++;
+        strokes += minStrokes(heights, i, j - 1);
+        i = j;
+    }
+
+    // Compare with painting all planks vertically
+    return Math.min(strokes, end - start + 1);
+}
+
+// Example usage:
+let fence1 = [1, 1, 1, 1, 1, 1];
+console.log(minStrokes(fence1)); // Output: 1
+
+let fence2 = [2, 5, 6, 1, 7, 2, 4];
+console.log(minStrokes(fence2)); // Output: minimal strokes required
+
 function mergeSort(arr) {
     if (arr.length == 1) {
         return arr;
@@ -57,6 +148,62 @@ function mergeSort(arr) {
 
 console.log(mergeSort([5, 2, 8, 5, 1, 4]));
 
+function merge(arr, low, mid, high) {
+    let temp = []; // Temporary array
+    let left = low;
+    let right = mid + 1;
+
+    // Store elements in sorted order
+    while (left <= mid && right <= high) {
+        if (arr[left] <= arr[right]) {
+            temp.push(arr[left]);
+            left++;
+        } else {
+            temp.push(arr[right]);
+            right++;
+        }
+    }
+
+    // If elements are left in the left half
+    while (left <= mid) {
+        temp.push(arr[left]);
+        left++;
+    }
+
+    // If elements are left in the right half
+    while (right <= high) {
+        temp.push(arr[right]);
+        right++;
+    }
+
+    // Copy back the sorted elements into original array
+    for (let i = low; i <= high; i++) {
+        arr[i] = temp[i - low];
+    }
+}
+
+function mergeSort(arr, low, high) {
+    if (low >= high) return arr;
+
+    const mid = Math.floor((low + high) / 2);
+
+    mergeSort(arr, low, mid); // Left half
+    mergeSort(arr, mid + 1, high); // Right half
+    merge(arr, low, mid, high); // Merge both halves
+}
+
+// 🧪 Driver code
+const arr = [9, 4, 7, 6, 3, 1, 5];
+const n = arr.length;
+
+console.log("Before sorting array:");
+console.log(arr.join(" "));
+
+mergeSort(arr, 0, n - 1);
+
+console.log("After sorting array:");
+console.log(arr.join(" "));
+
 // Maximum Sum Subarray of size K
 // Input: arr[] = [100, 200, 300, 400] , k = 2
 // Output: 700
@@ -64,24 +211,33 @@ console.log(mergeSort([5, 2, 8, 5, 1, 4]));
 
 class Solution {
     maximumSumSubarray(arr, k) {
-        let i = 0,
-            j = 0;
-        let sum = 0;
-        let ans = 0;
-
-        while (j < arr.length) {
-            sum += arr[j];
-
-            if (j - i + 1 == k) {
-                ans = Math.max(ans, sum);
-                sum -= arr[i];
-                i++;
-            }
-
-            j++;
+        if (
+            !Array.isArray(arr) ||
+            arr.length === 0 ||
+            k <= 0 ||
+            k > arr.length
+        ) {
+            return 0;
         }
 
-        return ans;
+        let start = 0;
+        let end = 0;
+        let windowSum = 0;
+        let maxSum = 0;
+
+        while (end < arr.length) {
+            windowSum += arr[end];
+
+            if (end - start + 1 === k) {
+                maxSum = Math.max(maxSum, windowSum);
+                windowSum -= arr[start];
+                start++;
+            }
+
+            end++;
+        }
+
+        return maxSum;
     }
 }
 
@@ -124,6 +280,62 @@ class Solution {
         }
         return ans;
     }
+}
+
+class Solution {
+    firstNegativeInteger(arr, k) {
+        const result = [];
+        const queue = [];
+        let start = 0;
+
+        for (let end = 0; end < arr.length; end++) {
+            // If current element is negative, store its index
+            if (arr[end] < 0) {
+                queue.push(end);
+            }
+
+            // Once window size reaches k
+            if (end - start + 1 === k) {
+                if (queue.length > 0) {
+                    // First negative number in current window
+                    result.push(arr[queue[0]]);
+                } else {
+                    result.push(0);
+                }
+
+                // Remove out-of-window indices
+                if (queue.length > 0 && queue[0] === start) {
+                    queue.shift();
+                }
+
+                start++;
+            }
+        }
+
+        return result;
+    }
+}
+
+function maxSlidingWindow(nums, k) {
+    const heap = new MaxHeap(); // stores [value, index]
+    const result = [];
+
+    let start = 0;
+    for (let end = 0; end < nums.length; end++) {
+        heap.push([nums[end], end]);
+
+        if (end - start + 1 === k) {
+            // 🧹 Remove all heap tops that are out of window
+            while (heap.top() && heap.top()[1] < start) {
+                heap.pop();
+            }
+
+            result.push(heap.top()[0]);
+            start++;
+        }
+    }
+
+    return result;
 }
 
 //  Count Occurences of Anagrams
@@ -194,12 +406,18 @@ class Solution {
 //  1  3  -1  -3 [5  3  6] 7       6
 //  1  3  -1  -3  5 [3  6  7]      7
 
+// 🔍 Think of it like this:
+// dq maintains a monotonic decreasing order of elements by their values.
+
+// So the largest element's index stays at the front.
+
+// Smaller elements at the back get removed when a larger (or equal) value comes in — hence we pop() them.
+
 var maxSlidingWindow = function (nums, k) {
     let ans = [];
     let dq = []; // store indices
 
     for (let i = 0; i < nums.length; i++) {
-
         // Remove indices that are out of the current window
         while (dq.length !== 0 && dq[0] <= i - k) {
             dq.shift();
@@ -335,32 +553,37 @@ class Solution {
     }
 }
 
+// Given a binary array nums and an integer k, return the maximum number of
+//  consecutive 1's in the array if you can flip at most k 0's.
 /**
- * @param {number[]} nums
- * @param {number} k
- * @return {number}
+ * Leetcode 1004. Max Consecutive Ones III
+ * @param {number[]} nums - Binary array (0s and 1s)
+ * @param {number} k - Max number of 0s you can flip to 1
+ * @return {number} - Longest subarray with at most k 0s flipped
  */
-var longestOnes = function (arr, k) {
-    let ans = 0;
-    let count = 0;
-    let i = 0;
-    let j;
-    for (j = 0; j < arr.length; j++) {
-        if (arr[j] == 0) {
-            count++;
+var longestOnes = function (nums, k) {
+    let start = 0;
+    let maxLen = 0;
+    let zeroCount = 0;
+
+    for (let end = 0; end < nums.length; end++) {
+        if (nums[end] === 0) {
+            zeroCount++;
         }
-        if (count > k) {
-            // we are not using while loop here because
-            // we already found the biggest window we can make, try to find the bigger one
-            if (arr[i] == 0) {
-                count--;
+
+        // Shrink the window from the left if we exceed the allowed flips
+        while (zeroCount > k) {
+            if (nums[start] === 0) {
+                zeroCount--;
             }
-            i++;
+            start++;
         }
-        // ans=Math.max(ans,j-i+1);
+
+        // Update max length of valid window
+        maxLen = Math.max(maxLen, end - start + 1);
     }
 
-    return j - i + 1;
+    return maxLen;
 };
 
 // Longest Substring Without Repeating Characters
@@ -440,7 +663,7 @@ var minWindow = function (s, t) {
                 ans = j - i + 1;
                 start_i = i;
             }
-
+v 
             map[s[i]]++;
             if (map[s[i]] > 0) {
                 requiredCount++;

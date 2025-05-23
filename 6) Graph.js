@@ -111,7 +111,7 @@ var findNumberofProvinces = function (graph) {
                 parent[xParent] = yParent;
                 rank[yParent] += 1;
             }
-            count -= 1;
+            count -= 1; 
         }
     }
 
@@ -541,7 +541,7 @@ function FindNumberofIslands2() {
     console.log(ans);
 }
 
-//Detect Cycle in Graph using DSU  undirected graph with no self loops
+//Detect Cycle in Graph using DSU  undirected graph with no self loops-------------------------------------------------------------------------------------------
 
 class Solution {
     detectCycle(n, adj) {
@@ -643,7 +643,7 @@ class Solution {
 
 // The worst case occurs in a dense graph (like a complete graph), where E ≈ V². However, the complexity remains O(V + E).
 
-// Thus, even in the worst case, the complexity does not exceed O(V + E).
+// Thus, even in the worst case, the complexity does not exceed O(V + E). 
 
 class Solution {
     // Function to detect cycle in an undirected graph DFS
@@ -704,16 +704,13 @@ class Solution {
             inRecursion[node] = true;
 
             for (let nbr of graph[node]) {
-                if (inRecursion[nbr] == false) {
-                    continue;
+                if(!visited[nbr]){
+                    if(dfsCycle(graph,nbr,visited,inRecursion)){
+                        return true;
+                    }
                 }
-
-                if (visited[nbr] == true) {
-                    return true;
-                }
-
-                if (dfsCycle(graph, nbr, visited, inRecursion)) {
-                    return true;
+                else if(inRecursion[nbr]){
+                    true;
                 }
             }
 
@@ -795,6 +792,77 @@ class Solution {
         return 0;
     }
 }
+
+
+// conunt number of islands in binary tree
+
+function countIslands(root) {
+    let count = 0;
+
+    function dfs(node) {
+        if (!node || node.val === 0) return;
+
+        // Mark this node as visited
+        node.val = 0;
+
+        dfs(node.left);
+        dfs(node.right);
+    }
+
+    function traverse(node) {
+        if (!node) return;
+
+        if (node.val === 1) {
+            count++;
+            dfs(node);
+        }
+
+        traverse(node.left);
+        traverse(node.right);
+    }
+
+    traverse(root);
+    return count;
+}
+
+function numDistinctIslands(grid) {
+    const rows = grid.length;
+    const cols = grid[0].length;
+    const visited = Array.from({ length: rows }, () => Array(cols).fill(false));
+    const uniqueIslands = new Set();
+
+    function dfs(r, c, baseR, baseC, shape) {
+        if (
+            r < 0 || c < 0 || r >= rows || c >= cols ||
+            grid[r][c] === 0 || visited[r][c]
+        ) {
+            return;
+        }
+
+        visited[r][c] = true;
+        shape.push([r - baseR, c - baseC]); // store relative coordinate
+
+        dfs(r + 1, c, baseR, baseC, shape);
+        dfs(r - 1, c, baseR, baseC, shape);
+        dfs(r, c + 1, baseR, baseC, shape);
+        dfs(r, c - 1, baseR, baseC, shape);
+    }
+
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            if (grid[r][c] === 1 && !visited[r][c]) {
+                const shape = [];
+                dfs(r, c, r, c, shape);
+                uniqueIslands.add(JSON.stringify(shape));
+            }
+        }
+    }
+
+    return uniqueIslands.size;
+}
+
+
+
 
 // TopoLogical sort // only be Applied on Directed Acyclic Graph
 // Topological sorting for Directed Acyclic Graph (DAG) is a linear ordering of vertices such that
@@ -947,8 +1015,8 @@ var AllPathsSourceTarget = function (dict, n, k) {
             }
         }
     }
-
-    let topo = findOrder(adj, k);
+    
+    let topo = findOrder(k,adj);
     let ans = [];
     for (let i = 0; i < topo.length; i++) {
         ans.push(String.fromCharCode(topo[i] + "a".charCodeAt(0)));
@@ -1304,6 +1372,34 @@ var isBipartite = function (graph) {
 
     return true;
 };
+
+function isBipartite(graph) {
+    const n = graph.length;
+    const color = Array(n).fill(-1); // -1 means uncolored
+
+    for (let start = 0; start < n; start++) {
+        if (color[start] !== -1) continue;
+
+        const queue = [start];
+        color[start] = 0;
+
+        while (queue.length > 0) {
+            const node = queue.shift();
+
+            for (const neighbor of graph[node]) {
+                if (color[neighbor] === -1) {
+                    color[neighbor] = 1 - color[node]; // Assign opposite color
+                    queue.push(neighbor);
+                } else if (color[neighbor] === color[node]) {
+                    return false; // Same color neighbor found → not bipartite
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
 
 //dijkshtra's algo
 
@@ -1674,7 +1770,7 @@ class Solution {
 // you also add parent in PQ  intilise parent arr with -1
 
 function spanningTree(v, adj) {
-    let inMST = new Array(v).fill(false);
+    let visited = new Array(v).fill(false);
     let sum = 0;
 
     let pq = new Heap();
@@ -1684,14 +1780,14 @@ function spanningTree(v, adj) {
     while (pq.size() != 0) {
         let [node, weight] = pq.remove();
 
-        if (inMST[node]) continue;
+        if (visited[node]) continue;
 
-        inMST[node] = true;
+        visited[node] = true;
         // paren [node] = nbr
         sum += weight;
 
         for (let [nbr, edgeWeight] of adj[node]) {
-            if (inMST[nbr] == false) {
+            if (visited[nbr] == false) {
                 pq.add(nbr, edgeWeight); // .add(nbr,nbrWeight,node)
             }
         }
@@ -1727,46 +1823,40 @@ var minCostConnectPoints = function(points) {
 
 
 // find the length of the Shortest Cycle in Undirected graph , Every vertex pair is connected by at most one edge, and no vertex has an edge to itself.
+function findShortestCycle (n, edges) {
+    const graph = Array.from({ length: n }, () => []);
+    for (const [u, v] of edges) {
+        graph[u].push(v);
+        graph[v].push(u); // Undirected
+    }
 
-function bfs(start) {
-    let dist = new Array(n).fill(Infinity);
-    dist[start] = 0;
+    let minCycle = Infinity;
 
-    let q = [];
-    q.push([start, -1]);
+    for (let start = 0; start < n; start++) {
+        const dist = Array(n).fill(Infinity);
+        const parent = Array(n).fill(-1);
+        const queue = [start];
+        dist[start] = 0;
 
-    let tempans = Infinity;
+        while (queue.length) {
+            const node = queue.shift();
 
-    while (q.length != 0) {
-        let [node, parent] = q.shift();
-        for (let nbr of graph[node]) {
-            if (dist[node] + 1 < dist[nbr]) {
-                dist[nbr] = dist[node] + 1;
-                q.push([nbr, node]);
-            } else if (parent != nbr) {
-                // dist[node] +1 >= dist[nbr]  cycle detected
-                tempans = Math.min(tempans, dist[nbr] + dist[node] + 1);
+            for (const neighbor of graph[node]) {
+                if (dist[neighbor] === Infinity) {
+                    dist[neighbor] = dist[node] + 1;
+                    parent[neighbor] = node;
+                    queue.push(neighbor);
+                } else if (parent[node] !== neighbor) {
+                    // Found a cycle
+                    minCycle = Math.min(minCycle, dist[node] + dist[neighbor] + 1);
+                }
             }
         }
     }
-    return tempans;
+
+    return minCycle === Infinity ? -1 : minCycle;
 }
 
-var findShortestCycle = function (n, edges) {
-    let graph = Array.from({ length: n }, () => []);
-
-    for (let [u, v] of edges) {
-        graph[u].push(v);
-        graph[v].push(u);
-    }
-
-    let ans = Infinity;
-    for (let node = 0; node < n; node++) {
-        ans = Math.min(ans, bfs(node));
-    }
-
-    return ans == Infinity ? -1 : ans;
-};
 
 //. Longest Cycle in a Graph
 // find the largest cycle in Directed graph , each vertex has at most one Outoging edge

@@ -1,3 +1,11 @@
+class TreeNode {
+    constructor(value, left = null, right = null) {
+        this.val = value;
+        this.left = left;
+        this.right = right;
+    }
+}
+
 function inOrder(node) {
     if (!node) return;
 
@@ -161,40 +169,37 @@ var deserialize = function (data) {
 
 // The final structure uses only .right pointers and follows preorder order.
 
-var flatten = function(root) {
+var flatten = function (root) {
     let prev = null;
 
     function dfs(node) {
         if (!node) return;
 
-        dfs(node.right);   // Visit right first
-        dfs(node.left);    // Then left
+        dfs(node.right); // Visit right first
+        dfs(node.left); // Then left
 
         node.right = prev; // Link current node to previously visited node
-        node.left = null;  // Nullify left pointer
-        prev = node;       // Update prev
+        node.left = null; // Nullify left pointer
+        prev = node; // Update prev
     }
 
     dfs(root);
 };
 
-
-
-
 // for left pointers
 
-var flattenLeft = function(root) {
+var flattenLeft = function (root) {
     let prev = null;
 
     function dfs(node) {
         if (!node) return;
 
-        dfs(node.right);   // Still process right first
-        dfs(node.left);    // Then left
+        dfs(node.right); // Still process right first
+        dfs(node.left); // Then left
 
-        node.left = prev;  // Connect to previous via `.left`
+        node.left = prev; // Connect to previous via `.left`
         node.right = null; // Nullify `.right` pointer
-        prev = node;       // Move prev forward
+        prev = node; // Move prev forward
     }
 
     dfs(root);
@@ -363,7 +368,6 @@ var deserialize = function (data) {
  * @param {TreeNode} root
  * @return {string}
  */
-
 
 /**
  * Your functions will be called as such:
@@ -926,8 +930,8 @@ function childrenSumProperty(node) {
         node.data = childSum;
     }
 
-    let left = childrenSumProperty(node.left);
-    let right = childrenSumProperty(node.right);
+    childrenSumProperty(node.left);
+    childrenSumProperty(node.right);
 
     let total = 0;
 
@@ -1092,7 +1096,7 @@ var delNodes = function (root, to_delete) {
  * @param {TreeNode} root
  * @return {TreeNode}
  */ //leetcode.com/problems/binary-tree-pruning/description/
-https: var pruneTree = function (root) {
+ var pruneTree = function (root) {
     function dfs(node) {
         if (!node) {
             return null;
@@ -1109,4 +1113,224 @@ https: var pruneTree = function (root) {
     }
 
     return dfs(root);
+};
+
+// ------------------------------------------------------binary search tree--------------------------------------------------
+
+var searchBST = function (root, val) {
+    if (root == null) return null;
+
+    if (root.val === val) return root;
+    if (val < root.val) return searchBST(root.left, val);
+
+    return searchBST(root.right, val);
+};
+
+// Find Minimum in BST
+function findMin(root) {
+    if (!root) return null;
+
+    while (root.left) {
+        root = root.left;
+    }
+    return root.val;
+}
+
+// Find Maximum in BST
+function findMax(root) {
+    if (!root) return null;
+
+    while (root.right) {
+        root = root.right;
+    }
+    return root.val;
+}
+
+function findCeil(root, x) {
+    let ceil = -1;
+
+    while (root) {
+        if (root.val === x) {
+            return x; // Exact match
+        }
+
+        if (root.val < x) {
+            root = root.right; // Ceil must be on the right
+        } else {
+            ceil = root.val; // Possible ceil
+            root = root.left;
+        }
+    }
+
+    return ceil;
+}
+
+function findFloor(root, x) {
+    let floor = -1;
+
+    while (root) {
+        if (root.val === x) {
+            return x; // Exact match
+        }
+
+        if (root.val > x) {
+            root = root.left; // Floor must be on the left
+        } else {
+            floor = root.val; // Possible floor
+            root = root.right;
+        }
+    }
+
+    return floor;
+}
+
+var isValidBST = function (root) {
+    function check(node, Min, Max) {
+        if (!node) return true;
+
+        if (node.val <= Min || node.val >= Max) {
+            return false;
+        }
+
+        return (
+            check(node.left, Min, node.val) && check(node.right, node.val, Max)
+        );
+    }
+
+    return check(root, -Infinity, Infinity);
+};
+
+var lowestCommonAncestor = function (root, p, q) {
+    if (!root) {
+        return null;
+    }
+
+    if (p.val < root.val && q.val < root.val) {
+        return lowestCommonAncestor(root.left, p, q);
+    } else if (p.val > root.val && q.val > root.val) {
+        return lowestCommonAncestor(root.right, p, q);
+    } else {
+        return root;
+    }
+};
+
+var kthSmallest = function (root, k) {
+    let count = 0;
+    let result = null;
+
+    function dfs(node) {
+        if (!node || result !== null) return;
+
+        dfs(node.left);
+
+        count++;
+        if (count === k) {
+            result = node.val;
+            return;
+        }
+
+        dfs(node.right);
+    }
+
+    dfs(root);
+    return result;
+};
+
+
+class BSTIterator {
+  constructor(root) {
+    this.stack = [];
+    this._leftmostInorder(root);
+  }
+
+  // Helper function to push all left children to stack
+  _leftmostInorder(node) {
+    while (node) {
+      this.stack.push(node);
+      node = node.left;
+    }
+  }
+
+  next() {
+    // Node on top of the stack is the next smallest
+    const topNode = this.stack.pop();
+
+    // If the node has a right child, process its leftmost path
+    if (topNode.right) {
+      this._leftmostInorder(topNode.right);
+    }
+
+    return topNode.val;
+  }
+
+  hasNext() {
+    return this.stack.length > 0;
+  }
+}
+
+
+var recoverTree = function(root) {
+    let prev = null;
+    let first = null, middle = null, last = null;
+
+    function inOrder(node) {
+        if (!node) return;
+
+        inOrder(node.left);
+
+        if (prev && prev.val > node.val) {
+            if (!first) {
+                first = prev;
+                middle = node;
+            } else {
+                last = node;
+            }
+        }
+        prev = node;
+
+        inOrder(node.right);
+    }
+
+    inOrder(root);
+
+    if (first && last) {
+        [first.val, last.val] = [last.val, first.val];
+    } else if (first && middle) {
+        [first.val, middle.val] = [middle.val, first.val];
+    }
+};
+
+
+function TreeNode(val, left = null, right = null) {
+    this.val = val;
+    this.left = left;
+    this.right = right;
+}
+
+var largestBSTSubtree = function(root) {
+    let maxSize = 0;
+
+    function postorder(node) {
+        if (!node) return [true, 0, Infinity, -Infinity];
+
+        const [leftIsBST, leftSize, leftMin, leftMax] = postorder(node.left);
+        const [rightIsBST, rightSize, rightMin, rightMax] = postorder(node.right);
+
+        // Check if current subtree is BST
+        if (
+            leftIsBST && rightIsBST &&
+            node.val > leftMax &&
+            node.val < rightMin
+        ) {
+            const size = leftSize + rightSize + 1;
+            maxSize = Math.max(maxSize, size);
+            return [true, size, Math.min(node.val, leftMin), Math.max(node.val, rightMax)];
+        }
+
+        // Not a BST
+        return [false, 0, 0, 0];
+    }
+
+    postorder(root);
+    return maxSize;
 };

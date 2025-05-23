@@ -20,7 +20,7 @@
 var climbStairs = function (n) {
     function countWays(n) {
         if (n == 0) {
-            return 0;
+            return 1;
         }
 
         if (n == 1) {
@@ -37,7 +37,7 @@ var climbStairs = function (n) {
 var climbStairs = function (n) {
     function countWays(n) {
         if (n == 0) {
-            return 0;
+            return 1;
         }
 
         if (n == 1) {
@@ -57,7 +57,7 @@ var climbStairs = function (n) {
 
 var climbStairs = function (n) {
     let dp = Array(n + 1).fill(-1);
-    dp[0] = 0;
+    dp[0] = 1;
     dp[1] = 1;
     for (let i = 2; i <= n; i++) {
         dp[i] = dp[i - 1] + dp[i - 2];
@@ -222,7 +222,7 @@ function solve(arr) {
 
 // How to identify DP Problems, 1) Optimal 2) they might have given you choices
 
-// BASE CASE : Find the smallest possible input
+// BASE CASE : Find the smallest possible valid input
 
 // find the choices at given point and make the condition for choices
 
@@ -264,7 +264,8 @@ function knapsack(wt, val, capacity, n, memo) {
     // If the current item's weight is within the capacity
     if (wt[n - 1] <= capacity) {
         // Option 1: Include the item
-        const include = val[n - 1] + knapsack(wt, val, capacity - wt[n - 1], n - 1, memo);
+        const include =
+            val[n - 1] + knapsack(wt, val, capacity - wt[n - 1], n - 1, memo);
         // Option 2: Exclude the item
         const exclude = knapsack(wt, val, capacity, n - 1, memo);
         // Store the max of the two options
@@ -281,7 +282,7 @@ function knapsack(wt, val, capacity, n, memo) {
 function solveKnapsack(wt, val, capacity) {
     const n = wt.length;
     // Initialize memo[n+1][capacity+1] with -1
-    const memo = Array.from({ length: n + 1 }, () => 
+    const memo = Array.from({ length: n + 1 }, () =>
         new Array(capacity + 1).fill(-1)
     );
     return knapsack(wt, val, capacity, n, memo);
@@ -329,7 +330,7 @@ function knapsack(weights, values, capacity) {
         // Traverse the dp array from right to left
         // Why Right-to-Left Update?
         // Updating from capacity down to weights[i] ensures that we don't reuse
-        // the same item multiple times (which would turn it into the unbounded 
+        // the same item multiple times (which would turn it into the unbounded
         // knapsack problem). Left-to-right updates would allow items to be used repeatedly.
         for (let w = capacity; w >= weights[i]; w--) {
             dp[w] = Math.max(dp[w], dp[w - weights[i]] + values[i]);
@@ -576,7 +577,7 @@ const weights = [1, 3, 4, 5];
 const values = [10, 40, 50, 70];
 const capacity = 8;
 n = weights.length;
-console.log(unboundedKnapsack(weights, values, capacity, n)); 
+console.log(unboundedKnapsack(weights, values, capacity, n));
 
 // Output: 110
 // Rode Cutting Problem
@@ -679,23 +680,24 @@ function longestCommonSubsequence(str1, str2) {
     // The length of the longest common subsequence is found at dp[m][n]
     const lcsLength = dp[m][n];
 
-    // Reconstruct the LCS string
-    let lcs = "";
     let i = m,
         j = n;
+    const lcs = [];
+
     while (i > 0 && j > 0) {
         if (str1[i - 1] === str2[j - 1]) {
-            lcs = str1[i - 1] + lcs; // Prepend character to LCS
+            lcs.push(str1[i - 1]);
             i--;
             j--;
-        } else if (dp[i - 1][j] > dp[i][j - 1]) {
-            i--; // Move up in the table
+        } else if (dp[i - 1][j] >= dp[i][j - 1]) {
+            i--;
         } else {
-            j--; // Move left in the table
+            j--;
         }
     }
 
-    return { lcsLength, lcs }; // Return both length and LCS string
+    // Since we built it backwards, reverse it
+    return lcs.reverse().join("");
 }
 
 // Example usage
@@ -755,49 +757,48 @@ function shortestCommonSupersequence(str1, str2) {
     for (let i = 1; i <= m; i++) {
         for (let j = 1; j <= n; j++) {
             if (str1[i - 1] === str2[j - 1]) {
-                dp[i][j] = dp[i - 1][j - 1] + 1;  // Characters match
+                dp[i][j] = dp[i - 1][j - 1] + 1; // Characters match
             } else {
                 dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]); // Take the max
             }
         }
     }
 
-    // Construct the SCS\ 
-    let scs = "";
     let i = m,
         j = n;
+    const result = [];
 
+    // Build SCS using dp table
     while (i > 0 && j > 0) {
-        // Using && condition here
         if (str1[i - 1] === str2[j - 1]) {
-            scs = str1[i - 1] + scs; // Add common character
+            result.push(str1[i - 1]);
             i--;
             j--;
         } else if (dp[i - 1][j] >= dp[i][j - 1]) {
-            scs = str1[i - 1] + scs; // Add character from str1
+            result.push(str1[i - 1]);
             i--;
         } else {
-            scs = str2[j - 1] + scs; // Add character from str2
+            result.push(str2[j - 1]);
             j--;
         }
     }
 
-    // Add remaining characters from str1 or str2
+    // Add remaining characters
     while (i > 0) {
-        scs = str1[i - 1] + scs;
+        result.push(str1[i - 1]);
         i--;
     }
     while (j > 0) {
-        scs = str2[j - 1] + scs;
+        result.push(str2[j - 1]);
         j--;
     }
 
-    return scs; // Return the shortest common supersequence
+    return result.reverse().join("");
 }
 
 // Example usage
 // const str1 = "AGGTAB";
-// const str2 = "GXTXAYB";
+// const str2 = "GXTXAYB";`
 // const result = shortestCommonSupersequence(str1, str2);
 console.log(`Shortest Common Supersequence: "${result}"`); // Output: "AGXGTXAYB"
 
@@ -937,3 +938,518 @@ function ninjaTraining(n, points) {
         return Math.max(first, second);
     }
 }
+
+function ninjaTraining(n, points) {
+    const dp = Array.from({ length: n }, () => Array(4).fill(-1));
+
+    function helper(day, last) {
+        if (day === 0) {
+            let maxPoints = 0;
+            for (let task = 0; task < 3; task++) {
+                if (task !== last) {
+                    maxPoints = Math.max(maxPoints, points[0][task]);
+                }
+            }
+            return maxPoints;
+        }
+
+        if (dp[day][last] !== -1) return dp[day][last];
+
+        let maxPoints = 0;
+        for (let task = 0; task < 3; task++) {
+            if (task !== last) {
+                const point = points[day][task] + helper(day - 1, task);
+                maxPoints = Math.max(maxPoints, point);
+            }
+        }
+
+        dp[day][last] = maxPoints;
+        return maxPoints;
+    }
+
+    return helper(n - 1, 3); // 3 means no task has been done yet
+}
+
+// -------------------------------------------------------Buy and Sell Stocks -----------------------------------------------------------
+
+// Buy and Sell Stock I - One Transaction
+// ================================
+
+// Recursion
+function maxProfitRec(prices, idx, buy) {
+    if (idx === prices.length) return 0;
+
+    if (buy) {
+        return Math.max(
+            -prices[idx] + maxProfitRec(prices, idx + 1, 0),
+            0 + maxProfitRec(prices, idx + 1, 1)
+        );
+    } else {
+        return Math.max(
+            prices[idx] + maxProfitRec(prices, idx + 1, 1),
+            0 + maxProfitRec(prices, idx + 1, 0)
+        );
+    }
+}
+// We start with f(0, 1) — day 0 with permission to buy.
+
+// Memoization
+function maxProfitMemo(prices) {
+    const n = prices.length;
+    const dp = Array.from({ length: n }, () => Array(2).fill(-1));
+
+    function helper(idx, buy) {
+        if (idx === n) return 0;
+        if (dp[idx][buy] !== -1) return dp[idx][buy];
+
+        if (buy) {
+            dp[idx][buy] = Math.max(
+                -prices[idx] + helper(idx + 1, 0),
+                helper(idx + 1, 1)
+            );
+        } else {
+            dp[idx][buy] = Math.max(
+                prices[idx] + helper(idx + 1, 1),
+                helper(idx + 1, 0)
+            );
+        }
+        return dp[idx][buy];
+    }
+
+    return helper(0, 1);
+}
+
+// Tabulation (DP)
+function maxProfitDP(prices) {
+    const n = prices.length;
+    const dp = Array.from({ length: n + 1 }, () => Array(2).fill(0));
+
+    for (let idx = n - 1; idx >= 0; idx--) {
+        for (let buy = 0; buy <= 1; buy++) {
+            if (buy) {
+                dp[idx][buy] = Math.max(
+                    -prices[idx] + dp[idx + 1][0],
+                    dp[idx + 1][1]
+                );
+            } else {
+                dp[idx][buy] = Math.max(
+                    prices[idx] + dp[idx + 1][1],
+                    dp[idx + 1][0]
+                );
+            }
+        }
+    }
+    return dp[0][1];
+}
+
+// Space Optimization
+function maxProfitOptimized(prices) {
+    let ahead = [0, 0];
+    let curr = [0, 0];
+
+    for (let idx = prices.length - 1; idx >= 0; idx--) {
+        for (let buy = 0; buy <= 1; buy++) {
+            if (buy) {
+                curr[buy] = Math.max(-prices[idx] + ahead[0], ahead[1]);
+            } else {
+                curr[buy] = Math.max(prices[idx] + ahead[1], ahead[0]);
+            }
+        }
+        ahead = [...curr];
+    }
+    return curr[1];
+}
+
+// Buy and Sell Stock II (Multiple Transactions Allowed)
+// Goal: Maximize profit by buying/selling multiple times (can't hold more than one stock at a time)
+
+// ------------------------
+// 1. Recursive Solution
+// ------------------------
+function maxProfitRecursive(prices) {
+    const n = prices.length;
+
+    function f(i, canBuy) {
+        if (i === n) return 0;
+
+        if (canBuy) {
+            return Math.max(-prices[i] + f(i + 1, 0), f(i + 1, 1));
+        } else {
+            return Math.max(prices[i] + f(i + 1, 1), f(i + 1, 0));
+        }
+    }
+
+    return f(0, 1);
+}
+
+// ------------------------
+// 2. Memoization (Top-Down DP)
+// ------------------------
+function maxProfitMemo(prices) {
+    const n = prices.length;
+    const dp = Array.from({ length: n }, () => Array(2).fill(-1));
+
+    function f(i, canBuy) {
+        if (i === n) return 0;
+        if (dp[i][canBuy] !== -1) return dp[i][canBuy];
+
+        if (canBuy) {
+            dp[i][canBuy] = Math.max(-prices[i] + f(i + 1, 0), f(i + 1, 1));
+        } else {
+            dp[i][canBuy] = Math.max(prices[i] + f(i + 1, 1), f(i + 1, 0));
+        }
+
+        return dp[i][canBuy];
+    }
+
+    return f(0, 1);
+}
+
+// ------------------------
+// 3. Tabulation (Bottom-Up DP)
+// ------------------------
+function maxProfitDP(prices) {
+    const n = prices.length;
+    const dp = Array.from({ length: n + 1 }, () => Array(2).fill(0));
+
+    for (let i = n - 1; i >= 0; i--) {
+        for (let canBuy = 0; canBuy <= 1; canBuy++) {
+            if (canBuy) {
+                dp[i][1] = Math.max(-prices[i] + dp[i + 1][0], dp[i + 1][1]);
+            } else {
+                dp[i][0] = Math.max(prices[i] + dp[i + 1][1], dp[i + 1][0]);
+            }
+        }
+    }
+
+    return dp[0][1];
+}
+
+// ------------------------
+// 4. Space Optimization
+// ------------------------
+function maxProfitSpaceOptimized(prices) {
+    const n = prices.length;
+    let ahead = [0, 0]; // ahead[0] = can't buy, ahead[1] = can buy
+    let curr = [0, 0];
+
+    for (let i = n - 1; i >= 0; i--) {
+        curr[1] = Math.max(-prices[i] + ahead[0], ahead[1]);
+        curr[0] = Math.max(prices[i] + ahead[1], ahead[0]);
+        ahead = [...curr];
+    }
+
+    return ahead[1];
+}
+
+// Buy and Sell Stock III only 2 transections allowed
+// ----------------------------
+
+// 1. Recursive Solution
+function maxProfitRecursive(prices) {
+    function helper(index, canBuy, cap) {
+        if (index === prices.length || cap === 0) return 0;
+
+        if (canBuy) {
+            const buy = -prices[index] + helper(index + 1, 0, cap);
+            const skip = helper(index + 1, 1, cap);
+            return Math.max(buy, skip);
+        } else {
+            const sell = prices[index] + helper(index + 1, 1, cap - 1);
+            const skip = helper(index + 1, 0, cap);
+            return Math.max(sell, skip);
+        }
+    }
+    return helper(0, 1, 2); // healper(0,1,k)
+}
+
+// 2. Memoization (Top-down DP)
+function maxProfitMemo(prices) {
+    const n = prices.length;
+    const dp = Array.from({ length: n }, () =>
+        Array(2)
+            .fill(null)
+            .map(() => Array(3).fill(-1))
+    );
+
+    function helper(index, canBuy, cap) {
+        if (index === n || cap === 0) return 0;
+        if (dp[index][canBuy][cap] !== -1) return dp[index][canBuy][cap];
+
+        if (canBuy) {
+            const buy = -prices[index] + helper(index + 1, 0, cap);
+            const skip = helper(index + 1, 1, cap);
+            dp[index][canBuy][cap] = Math.max(buy, skip);
+        } else {
+            const sell = prices[index] + helper(index + 1, 1, cap - 1);
+            const skip = helper(index + 1, 0, cap);
+            dp[index][canBuy][cap] = Math.max(sell, skip);
+        }
+
+        return dp[index][canBuy][cap];
+    }
+
+    return helper(0, 1, 2);
+}
+
+// 3. Tabulation (Bottom-up DP)
+function maxProfitTab(prices) {
+    const n = prices.length;
+    const dp = Array.from({ length: n + 1 }, () =>
+        Array(2)
+            .fill(0)
+            .map(() => Array(3).fill(0))
+    );
+
+    for (let i = n - 1; i >= 0; i--) {
+        for (let canBuy = 0; canBuy <= 1; canBuy++) {
+            for (let cap = 1; cap <= 2; cap++) {
+                if (canBuy) {
+                    const buy = -prices[i] + dp[i + 1][0][cap];
+                    const skip = dp[i + 1][1][cap];
+                    dp[i][canBuy][cap] = Math.max(buy, skip);
+                } else {
+                    const sell = prices[i] + dp[i + 1][1][cap - 1];
+                    const skip = dp[i + 1][0][cap];
+                    dp[i][canBuy][cap] = Math.max(sell, skip);
+                }
+            }
+        }
+    }
+
+    return dp[0][1][2];
+}
+
+// 4. Space Optimization
+function maxProfitSpaceOpt(prices) {
+    const n = prices.length;
+    let ahead = Array(2)
+        .fill(0)
+        .map(() => Array(3).fill(0));
+    let curr = Array(2)
+        .fill(0)
+        .map(() => Array(3).fill(0));
+
+    for (let i = n - 1; i >= 0; i--) {
+        for (let canBuy = 0; canBuy <= 1; canBuy++) {
+            for (let cap = 1; cap <= 2; cap++) {
+                if (canBuy) {
+                    const buy = -prices[i] + ahead[0][cap];
+                    const skip = ahead[1][cap];
+                    curr[canBuy][cap] = Math.max(buy, skip);
+                } else {
+                    const sell = prices[i] + ahead[1][cap - 1];
+                    const skip = ahead[0][cap];
+                    curr[canBuy][cap] = Math.max(sell, skip);
+                }
+            }
+        }
+        [ahead, curr] = [curr, ahead];
+    }
+
+    return ahead[1][2];
+}
+
+// Buy and Sell Stocks V (with cooldown)
+
+// 1. Recursive Solution
+function maxProfitRec(prices, i = 0, canBuy = 1) {
+    if (i >= prices.length) return 0;
+  
+    if (canBuy) {
+      return Math.max(
+        -prices[i] + maxProfitRec(prices, i + 1, 0),
+        maxProfitRec(prices, i + 1, 1)
+      );
+    } else {
+      return Math.max(
+        prices[i] + maxProfitRec(prices, i + 2, 1),
+        maxProfitRec(prices, i + 1, 0)
+      );
+    }
+  }
+  
+  // 2. Memoization
+  function maxProfitMemo(prices) {
+    const n = prices.length;
+    const dp = Array.from({ length: n }, () => Array(2).fill(-1));
+  
+    function dfs(i, canBuy) {
+      if (i >= n) return 0;
+      if (dp[i][canBuy] !== -1) return dp[i][canBuy];
+  
+      if (canBuy) {
+        dp[i][canBuy] = Math.max(
+          -prices[i] + dfs(i + 1, 0),
+          dfs(i + 1, 1)
+        );
+      } else {
+        dp[i][canBuy] = Math.max(
+          prices[i] + dfs(i + 2, 1),
+          dfs(i + 1, 0)
+        );
+      }
+  
+      return dp[i][canBuy];
+    }
+  
+    return dfs(0, 1);
+  }
+  
+  // 3. Tabulation (DP)
+  function maxProfitTab(prices) {
+    const n = prices.length;
+    const dp = Array.from({ length: n + 2 }, () => Array(2).fill(0));
+  
+    for (let i = n - 1; i >= 0; i--) {
+      for (let canBuy = 0; canBuy <= 1; canBuy++) {
+        if (canBuy) {
+          dp[i][canBuy] = Math.max(
+            -prices[i] + dp[i + 1][0],
+            dp[i + 1][1]
+          );
+        } else {
+          dp[i][canBuy] = Math.max(
+            prices[i] + dp[i + 2][1],
+            dp[i + 1][0]
+          );
+        }
+      }
+    }
+  
+    return dp[0][1];
+  }
+  
+  // 4. Space Optimization
+  function maxProfitSpace(prices) {
+    const n = prices.length;
+    let ahead1 = [0, 0]; // i + 1
+    let ahead2 = [0, 0]; // i + 2
+  
+    for (let i = n - 1; i >= 0; i--) {
+      const curr = [0, 0];
+      for (let canBuy = 0; canBuy <= 1; canBuy++) {
+        if (canBuy) {
+          curr[canBuy] = Math.max(
+            -prices[i] + ahead1[0],
+            ahead1[1]
+          );
+        } else {
+          curr[canBuy] = Math.max(
+            prices[i] + ahead2[1],
+            ahead1[0]
+          );
+        }
+      }
+      ahead2 = ahead1;
+      ahead1 = curr;
+    }
+  
+    return ahead1[1];
+  }
+
+  
+
+  // Buy and Sell Stock VI (with Transaction Fee)
+// Format: Recursion => Memoization => Tabulation => Space Optimization
+
+// ✅ Recursion
+function maxProfitRecursive(prices, fee) {
+    function dfs(day, canBuy) {
+        if (day === prices.length) return 0;
+
+        if (canBuy) {
+            return Math.max(
+                -prices[day] + dfs(day + 1, 0), // Buy
+                dfs(day + 1, 1)                 // Skip
+            );
+        } else {
+            return Math.max(
+                prices[day] - fee + dfs(day + 1, 1), // Sell
+                dfs(day + 1, 0)                       // Skip
+            );
+        }
+    }
+    return dfs(0, 1);
+}
+
+// ✅ Memoization
+function maxProfitMemo(prices, fee) {
+    const n = prices.length;
+    const dp = Array.from({ length: n }, () => Array(2).fill(-1));
+
+    function dfs(day, canBuy) {
+        if (day === n) return 0;
+        if (dp[day][canBuy] !== -1) return dp[day][canBuy];
+
+        if (canBuy) {
+            dp[day][canBuy] = Math.max(
+                -prices[day] + dfs(day + 1, 0),
+                dfs(day + 1, 1)
+            );
+        } else {
+            dp[day][canBuy] = Math.max(
+                prices[day] - fee + dfs(day + 1, 1),
+                dfs(day + 1, 0)
+            );
+        }
+
+        return dp[day][canBuy];
+    }
+
+    return dfs(0, 1);
+}
+
+// ✅ Tabulation
+function maxProfitTab(prices, fee) {
+    const n = prices.length;
+    const dp = Array.from({ length: n + 1 }, () => Array(2).fill(0));
+
+    for (let day = n - 1; day >= 0; day--) {
+        for (let canBuy = 0; canBuy <= 1; canBuy++) {
+            if (canBuy) {
+                dp[day][canBuy] = Math.max(
+                    -prices[day] + dp[day + 1][0],
+                    dp[day + 1][1]
+                );
+            } else {
+                dp[day][canBuy] = Math.max(
+                    prices[day] - fee + dp[day + 1][1],
+                    dp[day + 1][0]
+                );
+            }
+        }
+    }
+
+    return dp[0][1];
+}
+
+// ✅ Space Optimization
+function maxProfitSpaceOpt(prices, fee) {
+    const n = prices.length;
+    let ahead = [0, 0];
+    let curr = [0, 0];
+
+    for (let day = n - 1; day >= 0; day--) {
+        for (let canBuy = 0; canBuy <= 1; canBuy++) {
+            if (canBuy) {
+                curr[canBuy] = Math.max(
+                    -prices[day] + ahead[0],
+                    ahead[1]
+                );
+            } else {
+                curr[canBuy] = Math.max(
+                    prices[day] - fee + ahead[1],
+                    ahead[0]
+                );
+            }
+        }
+        ahead = [...curr];
+    }
+
+    return ahead[1];
+}
+
+
+jump Game, House robber , Paint House, 
+

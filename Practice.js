@@ -57,3 +57,87 @@ function topologicalSort(adj){
     return res;
     
 }
+
+
+class DoublyListNode{
+    constructor(val,next=null,prev=null){
+        this.val=val;
+        this.next=next;
+        this.prev=prev;
+    }
+}
+
+class DoublyLinkedList{
+    constructor(){
+        this.head=null;
+        this.tail=null;
+        this.length=0;
+    }
+
+
+    append(val){
+        let newNode = new DoublyListNode(val);
+
+        if(this.tail){
+            this.tail.next=newNode;
+            newNode.prev=this.tail;
+            this.tail=newNode;
+        }
+        else{
+            this.head=newNode;
+            this.tail=newNode;
+        }
+
+        this.length+=1;
+
+    }
+
+    prepend(val){
+        let newNode = new DoublyListNode(val);
+
+        if(this.head){
+            this.head.prev=newNode;
+            newNode.next=this.head;
+            this.head=newNode;
+        }
+        else{
+            this.tail=newNode;
+            this.head=newNode;
+        }
+
+        this.length+=1;
+    }
+
+    delete(val){
+        if(!this.head){
+            return false;
+        }
+
+        let curr=this.head;
+
+        while(curr){
+            if(curr.val==val){
+
+                if(curr.next){
+                    curr.next.prev=curr.prev;
+                }
+                else{
+                    this.tail=curr.prev;
+                }
+
+                if(curr.prev){
+                    curr.prev.next=curr.next;
+                }
+                else{
+                    this.head=curr.next;
+                }
+
+                this.length-=1;
+                return true;
+
+            }
+            curr=curr.next;
+        }
+        return  false;
+    }
+}

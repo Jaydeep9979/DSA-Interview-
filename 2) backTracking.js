@@ -7,8 +7,6 @@ var exist = function(board, word) {
     
     function find(board,word,i,j,index){
 
-       
-
         if(i<0 || j<0 || i>=board.length || j>=board[0].length){
             return false;
         }
@@ -44,12 +42,7 @@ var exist = function(board, word) {
             }
         }
     }
-
     return false;
-
-
-
-
 };
 
 
@@ -120,8 +113,6 @@ var exist = function(board, word) {
 
     return total;
 
-
-
 };
 
 // Palindrome Partioning Question 
@@ -131,8 +122,6 @@ var exist = function(board, word) {
 //  of the partition is a 
 // palindrome
 // . Return all possible palindrome partitioning of s.
-
- 
 
 // Example 1:
 
